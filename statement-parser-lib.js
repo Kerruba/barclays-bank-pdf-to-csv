@@ -170,16 +170,26 @@
     "On-line Banking bill payment to",
     "Commission charges",
     "Standing order to",
-    "Cash machine withdrawal"
+    "Cash Machine Withdrawal",
+    "Cash Withdrawal",
+    "Account Fee",
+    "Bill Payment to",
+    "Card Purchase",
+    "Transfer to Sort Code",
+    "Payment by cheque"
   ];
   var receipts = [
     "Direct credit from",
     "Debit card refund from",
+    "Received from",
     "Internet Banking transfer from",
     "Deposit", // NB: not sure this is a generic reference
+    "Bill payment from",
     "Refund from"
   ];
-  var transactionsStart = 'Transactions in date order\\nDate\tDescription\tPayments\tReceipts\tBalance';
+  //var transactionsStart = 'Transactions in date order\\nDate\tDescription\tPayments\tReceipts\tBalance';
+  var transactionsStart = 'Money out\tMoney in\tBalance';
+
   /*
   transaction ending patterns are:
   * Interim balance carried forward3,856.88 - used on first page when a day's transaction spill over to the second page
@@ -192,7 +202,7 @@
   var optionalDateMarker = '(?:(\\d{1,2} [a-zA-z]{3})\t)?'; // some transactions are preceded by dates such as '7 Feb' or '21 Jul'
   var amountMarker = '\t[\\d,]+\\.\\d\\d';
   var trailingBalanceMarker = '(?:[\\d,]+\\.\\d\\d)?'; // some transactions are followed by balances that can interfere a subsequent date e.g. 'Direct credit from G Kirschner Ref:-KirschnerBooking306.004,109.18' followed by '7 FebDebit card payment...'
-  var transactionSeparator = new RegExp(optionalDateMarker+'(('+paymentsMarkers+'|'+receiptsMarkers+').+?)('+amountMarker+')'+trailingBalanceMarker,'g');
+  var transactionSeparator = new RegExp(optionalDateMarker+'(('+paymentsMarkers+'|'+receiptsMarkers+').+?)('+amountMarker+')'+trailingBalanceMarker,'ig');
   var totalsMarker = new RegExp('Total payments - incl\\.\\\\ncommission & interest('+amountMarker+').+?Total receipts('+amountMarker+')');
   //console.info('transaction separator',transactionSeparator);
 
@@ -249,6 +259,9 @@
 
       // update the transaction description to replace any escaped '\n' characters that were put there as padding
       var transactionDescription = matches[2].replace(/\\n/g,' ');
+      // replace all , with ; (csv format)
+      transactionDescription=transactionDescription.replace(/,/g,';');
+
 
       transactions.push({
         date: transactionDate,

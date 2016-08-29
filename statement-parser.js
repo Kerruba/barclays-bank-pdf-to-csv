@@ -24,6 +24,7 @@ fs.readdir(pdfFolder, function(err, files) {
         var flattenedResults = [];
         flattenedResults = Array.prototype.concat.apply(flattenedResults,results);
         console.log('all done');
+
         var csvResults = csvify(flattenedResults);
         //console.log(csvResults);
         var outputFileName = 'statements.csv';
@@ -38,8 +39,19 @@ fs.readdir(pdfFolder, function(err, files) {
 
 function csvify(transactions) {
     var csvPieces = [];
+    var pos = 0;
+    var neg = 0;
     transactions.forEach(function(transaction) {
-        csvPieces.push(transaction.date+'\t'+transaction.description+'\t'+transaction.amount);
+        //console.log(transaction.amount);
+        if (transaction.amount > 0) {
+           pos = transaction.amount;
+           neg = 0;
+        }
+        else {
+           pos = 0;
+           neg = -transaction.amount;
+        }
+        csvPieces.push(transaction.date+','+transaction.description+','+pos+','+neg);
     });
     return csvPieces.join('\n');
 }
